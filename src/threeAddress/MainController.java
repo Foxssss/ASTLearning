@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -15,6 +16,9 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
 public class MainController {
+	private static ASTParser astParser;
+	private static CompilationUnit compilationUnit;
+	private static IDocument doc;
 	public static void main(String[] args) {
 		byte[] input = null;
 		try {
@@ -30,24 +34,35 @@ public class MainController {
 			e.printStackTrace();
 		}
 		
-		ASTParser astParser = ASTParser.newParser(AST.JLS8);
+		astParser = ASTParser.newParser(AST.JLS8);
 		astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 		astParser.setSource(new String(input).toCharArray());
 		
-		CompilationUnit compilationUnit = (CompilationUnit)astParser.createAST(null);
-		ThreeAddressVisitor visitor = new ThreeAddressVisitor();
-		visitor.setAST(compilationUnit);
-		compilationUnit.accept(visitor);
-		System.out.print(compilationUnit.toString());
+		compilationUnit = (CompilationUnit)astParser.createAST(null);
+		doc = new Document(new String(input));
 		
-		IDocument doc = new Document(new String(input));
-		TextEdit edit = visitor.getRewrite().rewriteAST(doc, null);
+		ToBlockVisitor toBlockVisitor = new ToBlockVisitor();
+		toBlockVisitor.setAST(compilationUnit);
+		compilationUnit.accept(toBlockVisitor);
+		acceptRewrite(toBlockVisitor.getRewrite());
+		
+		ThreeAddressVisitor threeAddressVisitor = new ThreeAddressVisitor();
+		threeAddressVisitor.setAST(compilationUnit);
+		compilationUnit.accept(threeAddressVisitor);
+		acceptRewrite(threeAddressVisitor.getRewrite());
+		
+	}
+	
+	public static void acceptRewrite(ASTRewrite rewrite) {
+		TextEdit edit = rewrite.rewriteAST(doc, null);
 		try {
 			edit.apply(doc);
 		} catch (MalformedTreeException | BadLocationException e) {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		}
-		System.out.println(doc.get());
+		System.out.println(doc.get());		
+		astParser.setSource(doc.get().toCharArray());
+		compilationUnit = (CompilationUnit)astParser.createAST(null);
 	}
 }
