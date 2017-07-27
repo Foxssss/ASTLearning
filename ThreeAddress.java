@@ -1,12 +1,12 @@
 public class ThreeAdress {
 	public static void main(String[] args) {
-		int i = 0;
-		int j = i - i + fun(i) - i;
+		int i = -1;
+		int j = -i - (i - fun(i)) + i - fun(i) + (-1);
+		int a = -j + i;
+		double b = -(i + j);
 		if(!(fun(j) > i)) {
 			System.out.println(i + j);
 		}
-
-		i = 0;
 		boolean tmp = i>j;
 		if(i>0)
 			if(!tmp)
