@@ -1,13 +1,21 @@
-# ASTLearning
+## ASTLearning
 有5个包：
+
 test - 用来熟悉AST框架的，没什么用
+
 methodCount - 可以统计一个java文件中有多少main方法、抽象方法以及构造方法
+
 stmtCount - 统计一个if-then语句的then语句块里面有多少条语句
+
 toBlock - 将if-then语句中非block的语句块转为block，为下面的包功能做铺垫
+
 threeAddress - 这次学习的主要完成目标，将变量声明赋值的语句转为3地址码类型的语句，有一些原本打算完成但结果未完成的目标（如，将if、while中的条件也改为3地址码类型，由于涉及到符号表的建立就没有实现，但还是可以实现的）。
 
-下面是示例：
+
+## 示例：
 原类：
+
+```
 public class ThreeAdress {
 	public static void main(String[] args) {
 		int i = -1, a = (1-i) * i * i + 1;
@@ -29,11 +37,13 @@ public class ThreeAdress {
 		return x;
 	}
 }
+```
 
 
 经过threeAddress.java处理后：
 （变量的定义转为3地址码类型，在每个if语句前加了一个空语句，原本是打算在if语句前加上一些中间变量的定义的，并没有实现因此就放弃了）
 
+```
 public class ThreeAdress {
 	public static void main(String[] args) {
 		int i = -1;
@@ -78,3 +88,4 @@ public class ThreeAdress {
 		return x;
 	}
 }
+```
