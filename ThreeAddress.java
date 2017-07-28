@@ -1,8 +1,7 @@
 public class ThreeAdress {
 	public static void main(String[] args) {
-		int i = -1;
+		int i = -1, a = (1-i) * i * i + 1;
 		int j = -i - (i - fun(i)) + i - fun(i) + (-1);
-		int a = -j + i;
 		double b = -(i + j);
 		if(!(fun(j) > i)) {
 			System.out.println(i + j);

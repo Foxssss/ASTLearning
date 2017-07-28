@@ -11,7 +11,6 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -113,16 +112,17 @@ public class ThreeAddressVisitor extends ASTVisitor {
 	 */
 	@Override
 	public boolean visit(VariableDeclarationStatement node) {
-		VariableDeclarationFragment fragment = (VariableDeclarationFragment) node.fragments().get(0);
-		Expression initializer = fragment.getInitializer();
-		ArrayList<VariableDeclarationStatement> decList = splitExpression(fragment.getName(), node.getType(), initializer);
-		Block block = (Block) node.getParent();
-		ListRewrite addRewrite = rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY);
-		for(VariableDeclarationStatement stmt : decList) {
-			addRewrite.insertBefore(stmt, node, null);
-		}
-		//if(initializer instanceof InfixExpression)
+		for(Object o :  node.fragments()) {
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) o;
+			Expression initializer = fragment.getInitializer();
+			ArrayList<VariableDeclarationStatement> decList = splitExpression(fragment.getName(), node.getType(), initializer);
+			Block block = (Block) node.getParent();
+			ListRewrite addRewrite = rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY);
+			for(VariableDeclarationStatement stmt : decList) {
+				addRewrite.insertBefore(stmt, node, null);
+			}
 			addRewrite.remove(node, null);
+		}
 		return true;
 	}
 		
@@ -153,7 +153,7 @@ public class ThreeAddressVisitor extends ASTVisitor {
 		}
 		else if(exp instanceof InfixExpression) {
 			Expression left = ((InfixExpression) exp).getLeftOperand();
-			if(!(left instanceof SimpleName)) {
+			if(!(left instanceof SimpleName || left instanceof NumberLiteral)) {
 			//if(left instanceof InfixExpression || left instanceof PrefixExpression || left instanceof MethodInvocation 
 			//		|| left instanceof ParenthesizedExpression) {
 				varNo++;
@@ -162,7 +162,7 @@ public class ThreeAddressVisitor extends ASTVisitor {
 				result.addAll(splitExpression(leftName, ptype, left));
 			}
 			Expression right = ((InfixExpression) exp).getRightOperand();
-			if(!(right instanceof SimpleName)) {
+			if(!(right instanceof SimpleName || right instanceof NumberLiteral)) {
 			//if(right instanceof InfixExpression || right instanceof PrefixExpression || right instanceof MethodInvocation 
 			//		|| right instanceof ParenthesizedExpression) {
 				varNo++;
