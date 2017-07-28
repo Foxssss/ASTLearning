@@ -27,10 +27,8 @@ public class MainController {
 			bufferedInputStrream.read(input);
 			bufferedInputStrream.close();
 		} catch (FileNotFoundException e) {
-			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		}
 		
@@ -58,7 +56,6 @@ public class MainController {
 		try {
 			edit.apply(doc);
 		} catch (MalformedTreeException | BadLocationException e) {
-			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		}
 		System.out.println(doc.get());		

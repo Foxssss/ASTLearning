@@ -37,6 +37,7 @@ public class ThreeAddressVisitor extends ASTVisitor {
 	/*
 	 * ********************* Method  List ***************************
 	 * public boolean visit(IfStatement node);                                 *
+	 * public boolean visit(ExpressionStatement node);                 *
 	 * public boolean visit(VariableDeclarationStatement node);  *
 	 * **************************************************************
 	 */	
@@ -107,8 +108,8 @@ public class ThreeAddressVisitor extends ASTVisitor {
 	}
 	
 	/**
-	 * assume only InfixExpression, PrefixExpression, ParenthesizedExpression and MethodInvocation in the declaration
-	 * assume only one variable declared in one VariableDeclarationStatement
+	 * 1 - assume only InfixExpression, PrefixExpression, ParenthesizedExpression and MethodInvocation in the declaration
+	 * 2 - assume only one variable declared in one VariableDeclarationStatement
 	 */
 	@Override
 	public boolean visit(VariableDeclarationStatement node) {
@@ -126,49 +127,50 @@ public class ThreeAddressVisitor extends ASTVisitor {
 	}
 		
 	/**
-	 * not complete
+	 * @param pname - name of the final variable
+	 * @param ptype - type of the final variable
 	 * @param exp - the expression to be split
 	 * @return the list of the split result
 	 */
-	public ArrayList<VariableDeclarationStatement> splitExpression(SimpleName pname, Type ptype, Expression initializer) {
+	public ArrayList<VariableDeclarationStatement> splitExpression(SimpleName pname, Type ptype, Expression exp) {
 		ArrayList<VariableDeclarationStatement> result = new ArrayList<VariableDeclarationStatement>();
-		if(initializer instanceof PrefixExpression) {
+		if(exp instanceof PrefixExpression) {
 			VariableDeclarationFragment finalFragment = ast.newVariableDeclarationFragment();
 			finalFragment.setName((SimpleName)ASTNode.copySubtree(ast, pname));
-			Expression operand = ((PrefixExpression) initializer).getOperand();
+			Expression operand = ((PrefixExpression) exp).getOperand();
 			//if(operand instanceof NumberLiteral)
 			//	return result;
 			if(!(operand instanceof SimpleName || operand instanceof NumberLiteral)) {
 				varNo++;
 				SimpleName opName = ast.newSimpleName(varName + varNo);
-				((PrefixExpression) initializer).setOperand(opName);
+				((PrefixExpression) exp).setOperand(opName);
 				result.addAll(splitExpression(opName, ptype, operand));
 			}
-			finalFragment.setInitializer((PrefixExpression)ASTNode.copySubtree(ast, initializer));
+			finalFragment.setInitializer((PrefixExpression)ASTNode.copySubtree(ast, exp));
 			VariableDeclarationStatement finalStmt = ast.newVariableDeclarationStatement(finalFragment);
 			finalStmt.setType((Type) ASTNode.copySubtree(ast, ptype));
 			result.add(finalStmt);
 		}
-		else if(initializer instanceof InfixExpression) {
-			Expression left = ((InfixExpression) initializer).getLeftOperand();
+		else if(exp instanceof InfixExpression) {
+			Expression left = ((InfixExpression) exp).getLeftOperand();
 			if(!(left instanceof SimpleName)) {
 			//if(left instanceof InfixExpression || left instanceof PrefixExpression || left instanceof MethodInvocation 
 			//		|| left instanceof ParenthesizedExpression) {
 				varNo++;
 				SimpleName leftName = ast.newSimpleName(varName + varNo);
-				((InfixExpression) initializer).setLeftOperand(leftName);
+				((InfixExpression) exp).setLeftOperand(leftName);
 				result.addAll(splitExpression(leftName, ptype, left));
 			}
-			Expression right = ((InfixExpression) initializer).getRightOperand();
+			Expression right = ((InfixExpression) exp).getRightOperand();
 			if(!(right instanceof SimpleName)) {
 			//if(right instanceof InfixExpression || right instanceof PrefixExpression || right instanceof MethodInvocation 
 			//		|| right instanceof ParenthesizedExpression) {
 				varNo++;
 				SimpleName rightName = ast.newSimpleName(varName + varNo);
-				((InfixExpression) initializer).setRightOperand(rightName);
+				((InfixExpression) exp).setRightOperand(rightName);
 				result.addAll(splitExpression(rightName, ptype, right));
 			}
-			if(((InfixExpression) initializer).hasExtendedOperands()) {
+			if(((InfixExpression) exp).hasExtendedOperands()) {
 				// e.g. a = b - c - d - ... - z
 				// STEP 1: generate "tempVar_i = b - c";
 				varNo++;
@@ -176,7 +178,7 @@ public class ThreeAddressVisitor extends ASTVisitor {
 				Type tempType = (Type) ASTNode.copySubtree(ast, ptype);
 				VariableDeclarationFragment tempFragment = ast.newVariableDeclarationFragment();
 				tempFragment.setName(tempName);
-				InfixExpression newExp = (InfixExpression) ASTNode.copySubtree(ast, initializer);
+				InfixExpression newExp = (InfixExpression) ASTNode.copySubtree(ast, exp);
 				newExp.extendedOperands().clear();
 				tempFragment.setInitializer(newExp);
 				VariableDeclarationStatement tempStmt = ast.newVariableDeclarationStatement(tempFragment);
@@ -184,7 +186,7 @@ public class ThreeAddressVisitor extends ASTVisitor {
 				result.add(tempStmt);
 				// STEP 2: generate "tempVar_k = tempVar_j - (d,e,f,..., y)"
 				//              and generate "a = tempVar_k - z"
-				List<?> extend = ((InfixExpression) initializer).extendedOperands();
+				List<?> extend = ((InfixExpression) exp).extendedOperands();
 				for(int i = 0; i < extend.size(); ++i) {
 					if(i == extend.size() - 1) {
 						tempName = (SimpleName) ASTNode.copySubtree(ast, pname);
@@ -197,7 +199,7 @@ public class ThreeAddressVisitor extends ASTVisitor {
 					tempFragment = ast.newVariableDeclarationFragment();
 					tempFragment.setName(tempName);
 					InfixExpression tempExp = ast.newInfixExpression();
-					tempExp.setOperator(((InfixExpression) initializer).getOperator());
+					tempExp.setOperator(((InfixExpression) exp).getOperator());
 					tempExp.setLeftOperand(ast.newSimpleName(varName + varNo));
 					Expression extendExp = (Expression) extend.get(i);
 					if(extendExp instanceof SimpleName)
@@ -217,29 +219,28 @@ public class ThreeAddressVisitor extends ASTVisitor {
 			}
 			VariableDeclarationFragment finalFragment = ast.newVariableDeclarationFragment();
 			finalFragment.setName((SimpleName) ASTNode.copySubtree(ast, pname));
-			finalFragment.setInitializer((Expression) ASTNode.copySubtree(ast, initializer));
+			finalFragment.setInitializer((Expression) ASTNode.copySubtree(ast, exp));
 			VariableDeclarationStatement finalStmt = ast.newVariableDeclarationStatement(finalFragment);
 			finalStmt.setType((Type) ASTNode.copySubtree(ast, ptype));
 			result.add(finalStmt);
 		}
-		else if(initializer instanceof MethodInvocation) {
+		else if(exp instanceof MethodInvocation) {
 			VariableDeclarationFragment finalFragment = ast.newVariableDeclarationFragment();
 			finalFragment.setName((SimpleName)ASTNode.copySubtree(ast, pname));
-			MethodInvocation finalExp = (MethodInvocation) ASTNode.copySubtree(ast, (MethodInvocation)initializer);
+			MethodInvocation finalExp = (MethodInvocation) ASTNode.copySubtree(ast, (MethodInvocation)exp);
 			finalFragment.setInitializer(finalExp);
 			VariableDeclarationStatement finalStmt = ast.newVariableDeclarationStatement(finalFragment);
 			finalStmt.setType((Type)ASTNode.copySubtree(ast, ptype));
 			result.add(finalStmt);
 		}
-		else if(initializer instanceof ParenthesizedExpression) {
-			Expression inExp = ((ParenthesizedExpression) initializer).getExpression();
+		else if(exp instanceof ParenthesizedExpression) {
+			Expression inExp = ((ParenthesizedExpression) exp).getExpression();
 			result.addAll(splitExpression(pname, ptype, inExp));
 		}
 		else
 			try {
 				throw new Exception("Unhandled type of Expression!");
 			} catch (Exception e) {
-				// TODO 自动生成的 catch 块
 				e.printStackTrace();
 			}
 		
