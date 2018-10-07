@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -41,24 +40,32 @@ public class ThreeAddressVisitor extends ASTVisitor {
 	 * **************************************************************
 	 */	
 	
+	/**
+	 * assume only boolean type variable in the condition expression of IfStatement
+	 */
 	@Override
 	public boolean visit(IfStatement node) {
-		//Expression exp = node.getExpression();
-		//ArrayList<VariableDeclarationStatement> decList = splitExpression(exp);
-		
+		Expression exp = node.getExpression();
+		SimpleName finalName = ast.newSimpleName("finalName");
+		ArrayList<VariableDeclarationStatement> decList = 
+				splitExpression(finalName, ast.newPrimitiveType(PrimitiveType.BOOLEAN), exp);		
 		ASTNode parent = node.getParent();
 		if(parent instanceof Block) {
-			Block block = (Block)parent;
-			ListRewrite ifRewrite = rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY);
-			Statement emptyStmt = ast.newEmptyStatement();
-			ifRewrite.insertBefore(emptyStmt, node, null);
-			System.out.println();
+			int size = decList.size();
+			if(size > 1) {
+				for(int i = 0; i < size - 1; ++i) {
+					VariableDeclarationStatement stmt = decList.get(i);
+					Block block = (Block)parent;
+					ListRewrite ifRewrite = rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY);
+					ifRewrite.insertBefore(stmt, node, null);
+				}
+				rewrite.replace(exp, ((VariableDeclarationFragment)decList.get(size - 1).fragments().get(0)).getInitializer(), null);
+			}
 		}
 		else
 			try {
 				throw new Exception("The process of transferring to block is not complete!");
 			} catch (Exception e) {
-				// TODO 自动生成的 catch 块
 				e.printStackTrace();
 			}		
 		return true;

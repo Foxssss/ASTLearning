@@ -3,12 +3,10 @@ public class ThreeAdress {
 		int i = -1, a = (1-i) * i * i + 1;
 		int j = -i - (i - fun(i)) + i - fun(i) + (-1);
 		double b = -(i + j);
-		if(!(fun(j) > i)) {
+		if(!(j > i))
 			System.out.println(i + j);
-		}
-		boolean tmp = i>j;
 		if(i>0)
-			if(!tmp)
+			if(!(i>j))
 				if(i<1)
 					j  = 0;
 		while (i >j)
