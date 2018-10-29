@@ -13,7 +13,7 @@ public class Main {
 	public static void main(String[] args) {
 		byte[] input = null;
 		try {
-			BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("MethodTest.java"));
+			BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("B.java"));
 			input = new byte[bufferedInputStream.available()];
 			bufferedInputStream.read(input);
 			bufferedInputStream.close();
