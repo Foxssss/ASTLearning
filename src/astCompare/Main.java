@@ -10,10 +10,10 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class Main {
-	public static void main(String[] args) {
+	public static String getStringByJava(String filePath) {
 		byte[] input = null;
 		try {
-			BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("B.java"));
+			BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(filePath));
 			input = new byte[bufferedInputStream.available()];
 			bufferedInputStream.read(input);
 			bufferedInputStream.close();
@@ -34,6 +34,7 @@ public class Main {
 			System.out.println("File IfTest.java is not a standard java file!");
 		MarkVisitor markVisitor = new MarkVisitor();
 		compilationUnit.accept(markVisitor);
-		System.out.println(markVisitor.seq);
+//		System.out.println(markVisitor.seq);
+		return markVisitor.seq.toString();
 	}
 }

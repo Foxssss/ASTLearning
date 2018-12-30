@@ -3,6 +3,11 @@ package astCompare;
 import java.io.IOException;
 
 public class ZhangMain {
+	public static int compair(String str1, String str2) throws IOException {
+		Tree tree1 = new Tree(str1);
+		Tree tree2 = new Tree(str2);
+		return Tree.ZhangShasha(tree1, tree2);
+	}
 	public static void main(String[] args) throws IOException {
 		// Sample trees (in preorder).
 		String tree1Str1 = " xf ( x1a  x1a  x1a  x1a  x1a  x1a  x1a  x1a  x1a x37 ( x1f ( x15 ) x1f ( x3c  x19 ( x29 ) x29 ) x1f ( x15 ) x1f ( x19 ( x29 ) x15  x15 ) x1f ( x3c  x46 ( x15 ) x29 ) x1f ( x3c  x46 ( x19 ( x15 )) x19 ( x29 ) x29 ) x1f ( x3c  x46 ( x19 ( x15 )) x15 ) x1f ( x3c  x46 ( x19 ( x3c  x19 ( x15 ) x15 )) x15 ) x1f ( x18 ( x3c  x19 ( x19 ( x29 ))) x29 ) x37 ( x1f ( x15  x15 ) x1f ( x3c  x15  x29 ))))";
