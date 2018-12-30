@@ -1,4 +1,4 @@
-package astCompare;
+package astCompare.kit;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -9,7 +9,8 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-public class Main {
+public class TreeToString {
+	// transform Java File to String by parsing AST
 	public static String getStringByJava(String filePath) {
 		byte[] input = null;
 		try {

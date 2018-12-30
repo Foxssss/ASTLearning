@@ -1,4 +1,4 @@
-package astCompare;
+package astCompare.kit;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayAccess;
@@ -48,8 +48,12 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 public class MarkVisitor extends ASTVisitor {
 	public StringBuffer seq = new StringBuffer();
 		
-	private void addMark(int type) {
+	private void addMark_old(int type) {
 		seq.append(" x").append(Integer.toHexString(type)).append(" (");
+	}
+	
+	private void addMark(int type) {
+		seq.append((char)(type));
 	}
 	
 	@Override 
@@ -283,14 +287,14 @@ public class MarkVisitor extends ASTVisitor {
 		return true;
 	}
 	
-	@Override
-	public void endVisit(TypeDeclaration node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-	}
+//	@Override
+//	public void endVisit(TypeDeclaration node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//	}
 /*	@Override
 	public void endVisit(Modifier node) {
 		if (seq.lastIndexOf("(") == seq.length()-1) {
@@ -471,202 +475,209 @@ public class MarkVisitor extends ASTVisitor {
 		
 	}
 */
-
-	@Override
-	public void endVisit(CompilationUnit node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-	}
-	@Override
-	public void endVisit(ImportDeclaration node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-	}
-	@Override
-	public void endVisit(MethodDeclaration node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
 	
-	@Override
-	public void endVisit(BreakStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-	}
-	
-	@Override
-	public void endVisit(ConstructorInvocation node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-	}
-	
-	@Override
-	public void endVisit(ContinueStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-	}
-	
-	@Override
-	public void endVisit(DoStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-	}
-	
-	@Override
-	public void endVisit(EnhancedForStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(ExpressionStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(ForStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(IfStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(LabeledStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(ReturnStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(SuperConstructorInvocation node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(SwitchCase node) {
-		seq.append(")"); 	//		case:...; default:...;
-		
-	}
-	
-	@Override
-	public void endVisit(SwitchStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(ThrowStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(TryStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(TypeDeclarationStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(VariableDeclarationStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-		
-	}
-	
-	@Override
-	public void endVisit(WhileStatement node) {
-		if (seq.lastIndexOf("(") == seq.length()-1) {
-			seq.deleteCharAt(seq.length() - 1);
-		} else {
-			seq.append(")");
-		}
-	}
+	/**
+	// **********************************************************************
+	// *********no need to use "(" and ")" since no zhangshasha *******
+	// **********************************************************************
+	 * 
+	 */
+//
+//	@Override
+//	public void endVisit(CompilationUnit node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//	}
+//	@Override
+//	public void endVisit(ImportDeclaration node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//	}
+//	@Override
+//	public void endVisit(MethodDeclaration node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(BreakStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//	}
+//	
+//	@Override
+//	public void endVisit(ConstructorInvocation node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//	}
+//	
+//	@Override
+//	public void endVisit(ContinueStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//	}
+//	
+//	@Override
+//	public void endVisit(DoStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//	}
+//	
+//	@Override
+//	public void endVisit(EnhancedForStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(ExpressionStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(ForStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(IfStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(LabeledStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(ReturnStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(SuperConstructorInvocation node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(SwitchCase node) {
+//		seq.append(")"); 	//		case:...; default:...;
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(SwitchStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(ThrowStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(TryStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(TypeDeclarationStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(VariableDeclarationStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(WhileStatement node) {
+//		if (seq.lastIndexOf("(") == seq.length()-1) {
+//			seq.deleteCharAt(seq.length() - 1);
+//		} else {
+//			seq.append(")");
+//		}
+//	}
 
 }

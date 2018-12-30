@@ -1,4 +1,4 @@
-package astCompare.jgit;
+package astCompare.main;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,45 +22,70 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
-import astCompare.Main;
-import astCompare.ZhangMain;
+import astCompare.kit.StringDistanceUtils;
+import astCompare.kit.TreeToString;
 
 public class JgitDiff {
+	private static String project_path = "D:/github/k-9";
 	private static Git git;
-	private static String URL = "D:/java_workplace/k-9/.git";
+	private static String URL = project_path + "/.git";
 	private static List<DiffEntry> diffs;
 
 	public static void main(String[] args) throws IOException {
 		String[] revision = getLastestVersion();
-		Set<String> filePath = diffMethod(revision[0], revision[1]);
-		StringBuilder newTree = new StringBuilder("R( ");
+		Set<String> filePath;
+		int lastVersion = 1;
+		do {
+			filePath = diffMethod(revision[lastVersion - 1], revision[lastVersion]);
+			lastVersion ++;
+		} while (filePath.isEmpty() && lastVersion < revision.length);
+		
+		// get new version ast string
+		System.out.println("===============new tree str begin===============");
+		String[] newTrees = new String[filePath.size()];
+		int count = 0;
 		for (String path : filePath) {
-			path = "D:/java_workplace/k-9" + path;
-			newTree.append(Main.getStringByJava(path)).append(" ");
-			break;
+			path = project_path + path;
+			newTrees[count] = TreeToString.getStringByJava(path);
+			System.out.println(path + ": (string length)" + newTrees[count].length());
+			System.out.println(count++);
 		}
-		newTree.append(" )");
-		System.out.println("new tree str ok");
+		System.out.println("===============new tree str ok===============");
+		
+		// roll back
 		try {
-			rollBackPreRevision(diffs, revision[0], "temp");
+			rollBackPreRevision(diffs, revision[lastVersion - 1], "temp");
 		} catch (Exception e) {
-			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		}
 		System.out.println("roll back ok");
-		StringBuilder oldTree = new StringBuilder("R( ");
+		
+		// get old version ast string
+		System.out.println("===============old tree str begin===============");
+		String[] oldTrees = new String[filePath.size()];
+		count = 0;
 		for (String path : filePath) {
-			path = "D:/java_workplace/k-9" + path;
-			oldTree.append(Main.getStringByJava(path)).append(" ");
-			break;
+			path = project_path + path;
+			oldTrees[count] = TreeToString.getStringByJava(path);
+			System.out.println(path + ": (string length)" + oldTrees[count].length());
+			System.out.println(count++);
 		}
-		oldTree.append(" )");
-		System.out.println("old tree str ok");
-		System.out.println(ZhangMain.compair(oldTree.toString(), newTree.toString()));
+		System.out.println("===============new tree str ok===============");
+		
+		int edit_distance_sum = 0, max_substr_sum = 0;
+		for (int i = 0; i < newTrees.length; ++i) {
+			edit_distance_sum += StringDistanceUtils.editDistance(oldTrees[i], newTrees[i]);
+			max_substr_sum += StringDistanceUtils.maxSubStringLength(oldTrees[i], newTrees[i]);
+		}
+		System.out.println("The similarity between the latest two version of project: \n"
+				+ "\t" + project_path + "\n"
+				+ "sum of edit distance: " + edit_distance_sum + "\n"
+				+ "sum of max substring length: " + max_substr_sum + "\n");
 	}
 
 	private static String[] getLastestVersion() {
-		String[] revision = new String[2];
+		// get latest 10 version
+		String[] revision = new String[10];
 		File gitDir = new File(URL);
 		if (git == null) {
 			try {
@@ -68,8 +93,8 @@ public class JgitDiff {
 				Iterable<RevCommit> gitlog = git.log().call();
 				int i = 0;
 				for (RevCommit revCommit : gitlog) {
-					revision[i++] = revCommit.getName();// 版本号
-					if (i == 2)
+					revision[i++] = revCommit.getName();
+					if (i == revision.length)
 						break;
 					// revCommit.getAuthorIdent().getName();
 					// revCommit.getAuthorIdent().getEmailAddress();
@@ -77,7 +102,6 @@ public class JgitDiff {
 					// System.out.println(version);
 				}
 			} catch (IOException | GitAPIException e) {
-				// TODO 自动生成的 catch 块
 				e.printStackTrace();
 			}
 		}
@@ -107,7 +131,8 @@ public class JgitDiff {
 				df.format(diffEntry);
 				String diffText = out.toString("UTF-8");
 				for (String line : diffText.split("\n")) {
-					if (line.startsWith("--- a")) {
+					// the changed file should be a java file
+					if (line.startsWith("--- a") && line.endsWith(".java")) {
 						filePath.add(line.substring("--- a".length()));
 					}
 				}
@@ -128,10 +153,10 @@ public class JgitDiff {
 			String revision, String remark) throws Exception {
 
 		if (diffEntries == null || diffEntries.size() == 0) {
-			throw new Exception("没有需要回滚的文件");
+			throw new Exception("没有�?要回滚的文件");
 		}
 		List<String> files = new ArrayList<String>();
-		// 取出需要回滚的文件，新增的文件不回滚
+		// 取出要回滚的文件，新增的文件不回
 		for (DiffEntry diffEntry : diffEntries) {
 			if (diffEntry.getChangeType() == ChangeType.DELETE) {
 				continue;
@@ -140,7 +165,7 @@ public class JgitDiff {
 			}
 		}
 		if (files.size() == 0) {
-			throw new Exception("没有需要回滚的文件");
+			throw new Exception("没有�?要回滚的文件");
 		}
 		// checkout操作会丢失工作区的数据，暂存区和工作区的数据会恢复到指定（revision）的版本内容
 		CheckoutCommand checkoutCmd = git.checkout();
@@ -151,12 +176,12 @@ public class JgitDiff {
 		// match any file(s) known to git.
 		checkoutCmd.setStartPoint(revision + "^");
 		checkoutCmd.call();
-		// 重新提交一次
+		// 重新提交
 		CommitCommand commitCmd = git.commit();
 		for (String file : files) {
 			commitCmd.setOnly(file);
 		}
-		commitCmd.setCommitter("yonge", "654166020@qq.com").setMessage(remark)
+		commitCmd.setCommitter("temp", "temp@temp.com").setMessage(remark)
 				.call();
 		return true;
 	}
